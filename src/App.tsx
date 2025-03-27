@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./components/Auth";
 import PetParadise from "./pages/PetParadise";
+import PetProfiles from "./pages/PetProfiles";
+import HomePage from "./pages/HomePage";
+import ParadisePage from "./pages/Paradise";
 
 const queryClient = new QueryClient();
 
@@ -37,12 +39,27 @@ const App = () => (
           <Routes>
             <Route path="/" element={
               <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-profile" element={
+              <ProtectedRoute>
                 <Index />
               </ProtectedRoute>
             } />
-            <Route path="/pet-paradise/:id" element={
+            <Route path="/pet/:id" element={
               <ProtectedRoute>
                 <PetParadise />
+              </ProtectedRoute>
+            } />
+            <Route path="/profiles" element={
+              <ProtectedRoute>
+                <PetProfiles />
+              </ProtectedRoute>
+            } />
+            <Route path="/paradise" element={
+              <ProtectedRoute>
+                <ParadisePage />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />

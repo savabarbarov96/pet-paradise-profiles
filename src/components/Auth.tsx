@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,7 +61,7 @@ const Auth: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-paradise-light/30 to-serenity-light/50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-display font-semibold mb-2">
+          <h1 className="text-3xl font-display font-semibold mb-2 font-handwritten">
             {mode === 'signIn' ? 'Welcome Back' : 'Join Pet Paradise'}
           </h1>
           <p className="text-muted-foreground">
@@ -106,7 +105,7 @@ const Auth: React.FC = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-paradise hover:bg-paradise-dark text-white py-2 rounded-full shadow-glow"
+                className="w-full bg-paradise hover:bg-paradise-dark text-white py-2 rounded-full shadow-glow font-handwritten"
                 disabled={loading}
               >
                 {loading ? 'Processing...' : mode === 'signIn' ? 'Sign In' : 'Create Account'}
@@ -117,7 +116,7 @@ const Auth: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => setMode(mode === 'signIn' ? 'signUp' : 'signIn')}
-              className="text-paradise hover:underline text-sm"
+              className="text-paradise hover:underline text-sm font-handwritten"
             >
               {mode === 'signIn' 
                 ? "Don't have an account? Sign up" 

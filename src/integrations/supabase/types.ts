@@ -342,12 +342,14 @@ export type Database = {
       pet_profiles: {
         Row: {
           bio: string | null
+          behavior: string | null
           birth_date: string | null
           breed: string | null
           created_at: string
           death_date: string | null
           featured_media_url: string | null
           id: string
+          is_private: boolean | null
           likes_count: number | null
           memorial_message: string | null
           name: string
@@ -358,12 +360,14 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          behavior?: string | null
           birth_date?: string | null
           breed?: string | null
           created_at?: string
           death_date?: string | null
           featured_media_url?: string | null
           id?: string
+          is_private?: boolean | null
           likes_count?: number | null
           memorial_message?: string | null
           name: string
@@ -374,12 +378,14 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          behavior?: string | null
           birth_date?: string | null
           breed?: string | null
           created_at?: string
           death_date?: string | null
           featured_media_url?: string | null
           id?: string
+          is_private?: boolean | null
           likes_count?: number | null
           memorial_message?: string | null
           name?: string
