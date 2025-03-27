@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./components/Auth";
+import PetParadise from "./pages/PetParadise";
 
 const queryClient = new QueryClient();
 
@@ -39,8 +40,12 @@ const App = () => (
                 <Index />
               </ProtectedRoute>
             } />
+            <Route path="/pet-paradise/:id" element={
+              <ProtectedRoute>
+                <PetParadise />
+              </ProtectedRoute>
+            } />
             <Route path="/auth" element={<Auth />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -3,13 +3,27 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import ProfilePreview from '../ProfilePreview';
 import { StepProps } from './types';
+import { useNavigate } from 'react-router-dom';
 
-const StepThree: React.FC<StepProps & { handleComplete: () => void; isSubmitting: boolean }> = ({ 
+const StepThree: React.FC<StepProps & { handleComplete: () => Promise<any>; isSubmitting: boolean }> = ({ 
   profile, 
   totalSteps,
   handleComplete,
   isSubmitting
 }) => {
+  const navigate = useNavigate();
+
+  const handleCompletionAndRedirect = async () => {
+    try {
+      const result = await handleComplete();
+      if (result?.success) {
+        navigate(`/pet-paradise/${result.profileId}`);
+      }
+    } catch (error) {
+      console.error("Error during profile creation:", error);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="text-center mb-6 animate-fade-in">
@@ -32,7 +46,7 @@ const StepThree: React.FC<StepProps & { handleComplete: () => void; isSubmitting
         </p>
         
         <Button 
-          onClick={handleComplete}
+          onClick={handleCompletionAndRedirect}
           disabled={isSubmitting}
           className="w-full bg-paradise hover:bg-paradise-dark text-white rounded-full px-8 py-6 flex items-center justify-center space-x-2 shadow-glow"
         >

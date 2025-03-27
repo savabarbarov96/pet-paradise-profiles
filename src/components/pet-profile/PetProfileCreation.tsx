@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Header from '../ui/Header';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 import { createPetProfile } from '@/services/petProfileService';
 import ProgressBar from './ProgressBar';
 import StepOne from './StepOne';
@@ -18,7 +17,6 @@ const PetProfileCreation: React.FC = () => {
     traits: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
   
   const totalSteps = 3;
   
@@ -39,8 +37,7 @@ const PetProfileCreation: React.FC = () => {
     }
     
     if (step === totalSteps) {
-      handleComplete();
-      return;
+      return handleComplete();
     }
     
     setStep(prev => prev + 1);
@@ -63,20 +60,20 @@ const PetProfileCreation: React.FC = () => {
           description: "They are now in Pet Paradise",
         });
         
-        // Could redirect to a new page showing all pets or the specific pet
-        // For now, we'll just reset the form
-        setProfile({ name: '', image: null, traits: [] });
-        setStep(1);
+        // Return the result for navigation in StepThree
+        return result;
       } else {
         toast.error("Failed to create profile", {
           description: result.error || "Please try again later",
         });
+        return { success: false };
       }
     } catch (error) {
       console.error("Error creating pet profile:", error);
       toast.error("Something went wrong", {
         description: "Please try again later",
       });
+      return { success: false };
     } finally {
       setIsSubmitting(false);
     }
