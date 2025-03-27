@@ -1,8 +1,14 @@
 
 import PetProfileCreation from '@/components/PetProfileCreation';
+import Navigation from '@/components/Navigation';
 
 const Index = () => {
-  return <PetProfileCreation />;
+  return (
+    <>
+      <Navigation />
+      <PetProfileCreation />
+    </>
+  );
 };
 
 export default Index;

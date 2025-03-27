@@ -7,6 +7,8 @@ import ProfilePreview from './ProfilePreview';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { PawPrint } from 'lucide-react';
+import { createPetProfile } from '@/services/petProfileService';
+import { useNavigate } from 'react-router-dom';
 
 interface PetProfile {
   name: string;
@@ -21,6 +23,8 @@ const PetProfileCreation: React.FC = () => {
     image: null,
     traits: []
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   
   const totalSteps = 3;
   
@@ -48,16 +52,40 @@ const PetProfileCreation: React.FC = () => {
     setStep(prev => prev + 1);
   };
   
-  const handleComplete = () => {
-    // Here you would typically send the data to a backend
-    toast.success(`${profile.name}'s profile has been created`, {
-      description: "They are now in Pet Paradise",
-    });
-    console.log("Pet profile created:", profile);
-    
-    // Reset the form after submission
-    // setProfile({ name: '', image: null, traits: [] });
-    // setStep(1);
+  const handleComplete = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      const result = await createPetProfile(
+        {
+          name: profile.name,
+          traits: profile.traits,
+        }, 
+        profile.image
+      );
+      
+      if (result.success) {
+        toast.success(`${profile.name}'s profile has been created`, {
+          description: "They are now in Pet Paradise",
+        });
+        
+        // Could redirect to a new page showing all pets or the specific pet
+        // For now, we'll just reset the form
+        setProfile({ name: '', image: null, traits: [] });
+        setStep(1);
+      } else {
+        toast.error("Failed to create profile", {
+          description: result.error || "Please try again later",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating pet profile:", error);
+      toast.error("Something went wrong", {
+        description: "Please try again later",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const renderStepContent = () => {

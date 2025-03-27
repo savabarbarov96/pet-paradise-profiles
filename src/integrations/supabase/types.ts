@@ -295,6 +295,136 @@ export type Database = {
         }
         Relationships: []
       }
+      pet_media: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          media_type: string
+          pet_id: string
+          storage_path: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          media_type: string
+          pet_id: string
+          storage_path: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          media_type?: string
+          pet_id?: string
+          storage_path?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_media_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pet_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pet_profiles: {
+        Row: {
+          bio: string | null
+          birth_date: string | null
+          breed: string | null
+          created_at: string
+          death_date: string | null
+          featured_media_url: string | null
+          id: string
+          likes_count: number | null
+          memorial_message: string | null
+          name: string
+          species: string | null
+          traits: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          birth_date?: string | null
+          breed?: string | null
+          created_at?: string
+          death_date?: string | null
+          featured_media_url?: string | null
+          id?: string
+          likes_count?: number | null
+          memorial_message?: string | null
+          name: string
+          species?: string | null
+          traits?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          birth_date?: string | null
+          breed?: string | null
+          created_at?: string
+          death_date?: string | null
+          featured_media_url?: string | null
+          id?: string
+          likes_count?: number | null
+          memorial_message?: string | null
+          name?: string
+          species?: string | null
+          traits?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pet_tributes: {
+        Row: {
+          author_name: string | null
+          created_at: string
+          id: string
+          message: string
+          pet_id: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          pet_id: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          pet_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_tributes_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pet_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
