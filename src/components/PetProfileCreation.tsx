@@ -5,7 +5,7 @@ import ImageUploader from './ImageUploader';
 import PersonalitySelector from './PersonalitySelector';
 import ProfilePreview from './ProfilePreview';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { PawPrint } from 'lucide-react';
 
 interface PetProfile {
