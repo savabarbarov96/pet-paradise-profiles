@@ -1,5 +1,5 @@
 
-import PetProfileCreation from '@/components/PetProfileCreation';
+import PetProfileCreation from '@/components/pet-profile/PetProfileCreation';
 import Navigation from '@/components/Navigation';
 
 const Index = () => {
