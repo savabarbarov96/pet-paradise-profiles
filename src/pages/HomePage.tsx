@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, AlertCircle, VolumeX, Volume2 } from 'lucide-react';
@@ -35,12 +35,86 @@ const HomePage = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
-  // Initialize audio player
+  // Define fetchProfiles using useCallback to avoid dependency issues
+  const fetchProfiles = useCallback(async () => {
+    console.log('HomePage: Fetching profiles...');
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await getUserPetProfiles();
+      
+      if (result.success && result.data && result.data.length > 0) {
+        console.log('HomePage: Got profile data from database:', result.data);
+        setProfiles(result.data);
+        setUsingMockData(false);
+      } else {
+        // If no profiles or error, fall back to mock data for better UX
+        console.log('HomePage: No profiles found or error, using mock data');
+        setProfiles(getMockPetProfiles());
+        setUsingMockData(true);
+        
+        if (result.error) {
+          toast({
+            title: "Could not connect to database",
+            description: "Using sample data instead. Your profiles will not be saved.",
+            variant: "destructive",
+          });
+          setDebugInfo({
+            message: 'Failed to load profiles',
+            error: result.error,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    } catch (err) {
+      console.error('HomePage: Error fetching profiles:', err);
+      setProfiles(getMockPetProfiles());
+      setUsingMockData(true);
+      setDebugInfo({
+        message: 'Exception when loading profiles',
+        error: String(err),
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  // Initialize audio player with autoplay attempt
   useEffect(() => {
     // Initialize audio when component mounts
     if (audioRef.current) {
       audioRef.current.volume = 0.3; // Set initial volume to 30%
       audioRef.current.loop = true; // Loop the music
+      
+      // Try to play audio immediately (may be blocked by browser)
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Auto-play was prevented, set up event listeners for user interaction
+          const playAudio = () => {
+            if (audioRef.current && audioRef.current.paused) {
+              audioRef.current.play().catch(e => 
+                console.error("Failed to play audio after user interaction:", e)
+              );
+              
+              // Remove listeners after successful play attempt
+              document.removeEventListener('click', playAudio);
+              document.removeEventListener('keydown', playAudio);
+              document.removeEventListener('touchstart', playAudio);
+              document.removeEventListener('scroll', playAudio);
+            }
+          };
+          
+          // Add event listeners for common user interactions
+          document.addEventListener('click', playAudio, { once: true });
+          document.addEventListener('keydown', playAudio, { once: true });
+          document.addEventListener('touchstart', playAudio, { once: true });
+          document.addEventListener('scroll', playAudio, { once: true });
+        });
+      }
     }
   }, []);
 
@@ -52,10 +126,12 @@ const HomePage = () => {
     }
   };
 
+  // Fetch profiles when component mounts or location changes
   useEffect(() => {
     console.log('HomePage: Component mounted or location changed, fetching profiles...');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchProfiles();
-  }, [location.key, toast, fetchProfiles]);
+  }, [location.key]);
 
   useEffect(() => {
     if (location.state?.newProfile) {
@@ -84,51 +160,6 @@ const HomePage = () => {
     }
   }, [location.state, toast]);
 
-  const fetchProfiles = async () => {
-    console.log('HomePage: Starting to fetch pet profiles...');
-    setLoading(true);
-    try {
-      const result = await getUserPetProfiles();
-      console.log('HomePage: Profile fetch result:', result);
-      setDebugInfo(prev => ({ ...prev, fetchResult: result }));
-
-      if (result.success && result.data) {
-        console.log('HomePage: Successfully fetched profiles:', result.data);
-        setProfiles(result.data);
-        setUsingMockData(false);
-      } else {
-        // Only use mock data if there's an error or no data
-        console.log('HomePage: No profiles found or error occurred, using mock data');
-        const mockData = getMockPetProfiles();
-        setProfiles(mockData);
-        setUsingMockData(true);
-        
-        if (result.error) {
-          console.error('HomePage: Error fetching profiles:', result.error);
-          setError(result.error);
-          toast({
-            title: 'Error',
-            description: result.error,
-            variant: 'destructive',
-          });
-        }
-      }
-    } catch (err) {
-      console.error('HomePage: Unexpected error:', err);
-      const mockData = getMockPetProfiles();
-      setProfiles(mockData);
-      setUsingMockData(true);
-      setError('An unexpected error occurred');
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred while fetching profiles',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateNew = () => {
     navigate('/create-profile');
   };
@@ -138,13 +169,13 @@ const HomePage = () => {
   };
 
   // Convert PetProfile to SimplePetProfile for FloatingPetProfiles
-  const convertToSimplePetProfiles = (profiles: PetProfile[]): SimplePetProfile[] => {
+  const convertToSimplePetProfiles = useCallback((profiles: PetProfile[]): SimplePetProfile[] => {
     return profiles.map(profile => ({
       id: profile.id || 'temp-' + Math.random().toString(36).substring(7),
       name: profile.name,
       featured_media_url: profile.featured_media_url
     }));
-  };
+  }, []);
 
   // Update simpleProfiles whenever profiles change
   useEffect(() => {
