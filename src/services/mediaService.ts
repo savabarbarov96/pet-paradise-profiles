@@ -62,7 +62,8 @@ export const fetchPetMedia = async (
 export const uploadPetMedia = async (
   petId: string,
   files: File[],
-  isPublicProfile: boolean = false
+  isPublicProfile: boolean = false,
+  guestName: string = 'Anonymous Guest'
 ): Promise<{ success: boolean; data?: MediaItem[]; error?: string }> => {
   try {
     // Check if user is authenticated
@@ -114,17 +115,25 @@ export const uploadPetMedia = async (
         const mediaType = file.type.startsWith('image/') ? 'photo' : 'video';
 
         // Create entry in pet_media table
+        const mediaRecord = {
+          pet_id: petId,
+          user_id: userId,
+          storage_path: publicUrl,
+          media_type: mediaType,
+          is_featured: false,
+          title: file.name,
+          description: ''
+        };
+
+        // Add guest_name for public profiles without authentication
+        if (isPublicProfile && !session) {
+          // @ts-ignore - We know this exists in the database even if it's not in the type
+          mediaRecord.guest_name = guestName;
+        }
+
         const { data: mediaData, error: mediaError } = await supabase
           .from('pet_media')
-          .insert([{
-            pet_id: petId,
-            user_id: userId,
-            storage_path: publicUrl,
-            media_type: mediaType,
-            is_featured: false,
-            title: file.name,
-            description: ''
-          }])
+          .insert([mediaRecord])
           .select('id')
           .single();
 
