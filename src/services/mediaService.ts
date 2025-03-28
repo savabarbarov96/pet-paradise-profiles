@@ -72,8 +72,9 @@ export const uploadPetMedia = async (
       return { success: false, error: "You must be logged in to upload media" };
     }
 
-    // For anonymous uploads to public profiles, we'll use a special path
-    const userId = session?.user.id || 'public';
+    // Set userId based on authentication status
+    // For unauthenticated users uploading to public profiles, userId will be null
+    const userId = session?.user.id || null;
 
     const uploadedMedia: MediaItem[] = [];
 
@@ -85,10 +86,10 @@ export const uploadPetMedia = async (
         let filePath = '';
         
         // Use different path structure depending on whether it's a public upload
-        if (isPublicProfile) {
+        if (isPublicProfile && !session) {
           filePath = `public/${petId}/${fileName}`;
         } else {
-          filePath = `${userId}/${petId}/${fileName}`;
+          filePath = `${session?.user.id}/${petId}/${fileName}`;
         }
 
         // Upload file to Supabase Storage
@@ -115,9 +116,8 @@ export const uploadPetMedia = async (
         const mediaType = file.type.startsWith('image/') ? 'photo' : 'video';
 
         // Create entry in pet_media table
-        const mediaRecord = {
+        const mediaRecord: any = {
           pet_id: petId,
-          user_id: userId,
           storage_path: publicUrl,
           media_type: mediaType,
           is_featured: false,
@@ -125,9 +125,13 @@ export const uploadPetMedia = async (
           description: ''
         };
 
+        // Only set user_id for authenticated users
+        if (userId) {
+          mediaRecord.user_id = userId;
+        }
+
         // Add guest_name for public profiles without authentication
         if (isPublicProfile && !session) {
-          // @ts-ignore - We know this exists in the database even if it's not in the type
           mediaRecord.guest_name = guestName;
         }
 

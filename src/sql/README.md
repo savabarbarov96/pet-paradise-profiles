@@ -10,6 +10,8 @@ Currently, there's an issue where unauthorized users are unable to upload images
 
 1. `fix_pet_media_policies.sql` - Updates the RLS policies for the pet_media table and storage buckets to allow uploads to public profiles.
 2. `fix_guest_column_issue.sql` - Adds a missing `guest_name` column to the pet_media table.
+3. `fix_foreign_key_issue.sql` - Makes the user_id column nullable and updates policies to allow guest uploads without violating foreign key constraints.
+4. `fix_rls_policy.sql` - Completely rebuilds all RLS policies to ensure guest uploads work properly.
 
 ## How to Run the SQL Scripts
 
@@ -17,7 +19,15 @@ Currently, there's an issue where unauthorized users are unable to upload images
 
 1. Log in to your Supabase dashboard
 2. Go to the SQL Editor
-3. Copy and paste the contents of both SQL files one after another
+3. **Important: For the fastest fix, just run the final script**:
+   - Run `fix_rls_policy.sql` which combines all the necessary fixes
+   
+   Or if you prefer to run them sequentially:
+   - First: `fix_pet_media_policies.sql`
+   - Second: `fix_guest_column_issue.sql`
+   - Third: `fix_foreign_key_issue.sql`
+   - Fourth: `fix_rls_policy.sql`
+
 4. Run the scripts
 
 ### Via CLI
@@ -25,11 +35,14 @@ Currently, there's an issue where unauthorized users are unable to upload images
 If you have the Supabase CLI installed:
 
 ```bash
-# Run the first script
-supabase db execute -f ./src/sql/fix_pet_media_policies.sql
+# For the fastest fix, just run the final script
+supabase db execute -f ./src/sql/fix_rls_policy.sql
 
-# Run the second script
-supabase db execute -f ./src/sql/fix_guest_column_issue.sql
+# Or run all scripts in order if preferred
+# supabase db execute -f ./src/sql/fix_pet_media_policies.sql
+# supabase db execute -f ./src/sql/fix_guest_column_issue.sql
+# supabase db execute -f ./src/sql/fix_foreign_key_issue.sql
+# supabase db execute -f ./src/sql/fix_rls_policy.sql
 ```
 
 ## Testing the Functionality
@@ -49,9 +62,14 @@ After running the SQL scripts, you can test the functionality by:
 The fix involves:
 
 1. Modifying the RLS policies to allow anonymous uploads to public profiles
-2. Adding a new `guest_name` column to the pet_media table
-3. Updating the ProfilePreview component to show an upload option for public profiles
-4. Adding a guest name input for unauthorized users
-5. Ensuring the media service handles unauthorized uploads correctly with the guest_name field
+2. Adding a new `guest_name` column to the pet_media table for guest attribution
+3. Making the `user_id` column nullable for guest uploads
+4. Completely rebuilding all RLS policies to ensure a clean implementation
+5. Updating the ProfilePreview component to show an upload option for public profiles
+6. Adding a guest name input for unauthorized users
+7. Ensuring the media service handles unauthorized uploads correctly:
+   - Setting user_id to null for guest uploads
+   - Adding guest_name for attribution
+   - Using the appropriate storage path structure
 
-The updated system now allows guests to upload images to public profiles with a name attribution. 
+The updated system now allows guests to upload images to public profiles with a name attribution without violating foreign key constraints or RLS policies. 

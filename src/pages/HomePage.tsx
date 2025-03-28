@@ -10,15 +10,26 @@ import FloatingPetProfiles from '@/components/FloatingPetProfiles';
 import PremiumBackground from '@/components/PremiumBackground';
 import { getUserPetProfiles, getMockPetProfiles } from '@/services/petProfileService';
 import { PetProfile } from '@/services/petProfileService';
+import { SimplePetProfile } from '@/components/floating-profiles/types';
+
+interface DebugInfo {
+  message: string;
+  timestamp: string;
+  [key: string]: unknown;
+}
 
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [profiles, setProfiles] = useState<PetProfile[]>([]);
+  const [simpleProfiles, setSimpleProfiles] = useState<SimplePetProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [usingMockData, setUsingMockData] = useState(false);
   const [newProfileId, setNewProfileId] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<DebugInfo>({
+    message: '',
+    timestamp: new Date().toISOString()
+  });
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -44,7 +55,7 @@ const HomePage = () => {
   useEffect(() => {
     console.log('HomePage: Component mounted or location changed, fetching profiles...');
     fetchProfiles();
-  }, [location.key, toast]);
+  }, [location.key, toast, fetchProfiles]);
 
   useEffect(() => {
     if (location.state?.newProfile) {
@@ -126,6 +137,20 @@ const HomePage = () => {
     fetchProfiles();
   };
 
+  // Convert PetProfile to SimplePetProfile for FloatingPetProfiles
+  const convertToSimplePetProfiles = (profiles: PetProfile[]): SimplePetProfile[] => {
+    return profiles.map(profile => ({
+      id: profile.id || 'temp-' + Math.random().toString(36).substring(7),
+      name: profile.name,
+      featured_media_url: profile.featured_media_url
+    }));
+  };
+
+  // Update simpleProfiles whenever profiles change
+  useEffect(() => {
+    setSimpleProfiles(convertToSimplePetProfiles(profiles));
+  }, [profiles, convertToSimplePetProfiles]);
+
   if (loading) {
     console.log('HomePage: Rendering loading state...');
     return (
@@ -156,6 +181,9 @@ const HomePage = () => {
         ref={audioRef} 
         src="/sounds/pet-paradise-background-music.mp3" 
         autoPlay 
+        loop
+        muted={isMuted}
+        preload="auto"
       />
       
       {/* Music Controls */}
@@ -215,7 +243,7 @@ const HomePage = () => {
                 </div>
               ) : (
                 <FloatingPetProfiles 
-                  profiles={profiles} 
+                  profiles={simpleProfiles} 
                   highlightProfileId={newProfileId} 
                 />
               )}
