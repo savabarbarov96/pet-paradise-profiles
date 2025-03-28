@@ -89,22 +89,15 @@ const StepTwo: React.FC<StepProps> = ({
         <div className="space-y-3">
           <Label htmlFor="traits" className="text-base">Черти на характера</Label>
           <p className="text-xs text-muted-foreground -mt-2">
-            Разделете ги със запетая (напр. "Игрив, Любвеобилен, Енергичен")
+            Опишете характера на вашия любимец с няколко думи
           </p>
           <Input
             id="traits"
             type="text"
             placeholder="Опишете личността на вашия любимец"
-            value={Array.isArray(profile.traits) ? profile.traits.join(', ') : ''}
-            onChange={(e) => {
-              // Split the comma-separated string into an array, trim whitespace, and filter empty values
-              const traitsArray = e.target.value
-                .split(',')
-                .map(trait => trait.trim())
-                .filter(trait => trait.length > 0);
-              updateProfile('traits', traitsArray);
-            }}
-            className="h-12 text-lg"
+            value={profile.traits || ''}
+            onChange={(e) => updateProfile('traits', e.target.value)}
+            className="h-12 text-lg font-handwritten"
           />
         </div>
       </div>

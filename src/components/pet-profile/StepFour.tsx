@@ -5,8 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { PlusCircle, X, Heart } from 'lucide-react';
+import { PlusCircle, X, Heart, EyeOff, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 
 const StepFour: React.FC<StepProps> = ({
   profile,
@@ -17,6 +18,7 @@ const StepFour: React.FC<StepProps> = ({
 }) => {
   const [newFavorite, setNewFavorite] = useState('');
   const [favorites, setFavorites] = useState<string[]>(profile.favoriteThings || []);
+  const [isPrivate, setIsPrivate] = useState<boolean>(profile.is_private || false);
 
   const handleAddFavorite = () => {
     if (newFavorite.trim() !== '' && favorites.length < 10) {
@@ -38,6 +40,14 @@ const StepFour: React.FC<StepProps> = ({
       e.preventDefault();
       handleAddFavorite();
     }
+  };
+
+  const handlePrivacyToggle = (checked: boolean) => {
+    setIsPrivate(checked);
+    updateProfile('is_private', checked);
+    
+    // Ensure can_remember_photo remains true even when profile is private
+    updateProfile('can_remember_photo', true);
   };
 
   return (
@@ -124,6 +134,35 @@ const StepFour: React.FC<StepProps> = ({
               Достигнахте максималния брой любими неща (10)
             </p>
           )}
+        </div>
+
+        {/* Privacy settings section */}
+        <div className="space-y-3 border-t pt-6">
+          <Label htmlFor="privacy-toggle" className="text-base flex items-center gap-2">
+            {isPrivate ? 
+              <EyeOff className="h-4 w-4 text-muted-foreground" /> : 
+              <Eye className="h-4 w-4 text-paradise" />
+            }
+            <span>Настройки за поверителност</span>
+          </Label>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm">Направи профила личен</p>
+              <p className="text-xs text-muted-foreground">
+                При личен профил, само вие ще виждате снимките и детайлите
+              </p>
+            </div>
+            <Switch 
+              id="privacy-toggle"
+              checked={isPrivate}
+              onCheckedChange={handlePrivacyToggle}
+            />
+          </div>
+          
+          <p className="text-xs text-paradise">
+            Дори при личен профил, всеки ще може да запали свещ за почит и да добави снимка или спомен
+          </p>
         </div>
       </div>
 

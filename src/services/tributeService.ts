@@ -11,6 +11,8 @@ export interface Tribute {
 
 // Fetch tributes for a pet
 export const fetchTributes = async (petId: string): Promise<Tribute[]> => {
+  // No need to check if user is authenticated for fetching tributes
+  // The RLS policy will handle access control for private vs public profiles
   const { data, error } = await supabase
     .from('pet_tributes')
     .select('*')
@@ -28,14 +30,32 @@ export const fetchTributes = async (petId: string): Promise<Tribute[]> => {
 // Add a tribute for a pet
 export const addTribute = async (tribute: Tribute): Promise<{ success: boolean; error?: string }> => {
   try {
+    // Check if this is a public profile first
+    const { data: profileData, error: profileError } = await supabase
+      .from('pet_profiles')
+      .select('is_private')
+      .eq('id', tribute.pet_id)
+      .single();
+    
+    if (profileError) {
+      console.error("Error checking profile privacy:", profileError);
+      return { success: false, error: "Could not verify profile access" };
+    }
+    
     // Get current user session
     const { data: { session } } = await supabase.auth.getSession();
+    const isPublicProfile = !profileData.is_private;
+    
+    // If the profile is private, user must be logged in
+    if (!isPublicProfile && !session) {
+      return { success: false, error: "You must be logged in to add tributes to private profiles" };
+    }
     
     const { error } = await supabase
       .from('pet_tributes')
       .insert([{
         pet_id: tribute.pet_id,
-        user_id: session?.user?.id,
+        user_id: session?.user?.id || null, // Allow null for anonymous users
         message: tribute.message,
         author_name: tribute.author_name
       }]);

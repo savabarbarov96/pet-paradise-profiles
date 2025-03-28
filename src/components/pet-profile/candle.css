@@ -1,0 +1,20 @@
+.candle-flame-container {
+  position: relative;
+  width: 24px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.5));
+}
+
+@keyframes flicker {
+  0% { transform: scale(1.0, 1.0) }
+  50% { transform: scale(0.9, 1.1) }
+  100% { transform: scale(1.0, 1.0) }
+}
+
+.candle-flame {
+  animation: flicker 1s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}

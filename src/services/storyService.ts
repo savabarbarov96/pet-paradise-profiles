@@ -81,23 +81,35 @@ export const generatePetStory = (petName: string, traits: string[]): string => {
 // Fetch pet profile by ID
 export const fetchPetProfile = async (profileId: string) => {
   try {
+    // Get current user session for authorization check
+    const { data: { session } } = await supabase.auth.getSession();
+    const currentUserId = session?.user?.id;
+
+    // First attempt to fetch the profile (this will work for public profiles or if user owns the profile)
     const { data, error } = await supabase
       .from('pet_profiles')
-      .select('*')
+      .select('*, user_id')
       .eq('id', profileId)
       .single();
 
     if (error) {
       console.error("Error fetching pet profile:", error);
       
-      // Check if this is a permission error, which might indicate that
-      // this is a private profile the user doesn't have access to
+      // If the error is a permission error, it might be a private profile
       if (error.code === 'PGRST116') {
-        // Permission denied error code in Supabase
-        return { error: "Този профил е личен и не е достъпен за преглед." };
+        return { error: "This pet's memorial is private and can only be viewed by its creator." };
       }
       
+      // For other errors (like not found)
       return null;
+    }
+
+    // Make sure the private flag is always populated
+    data.is_private = data.is_private ?? false;
+
+    // Double-check private access (in case RLS didn't handle it)
+    if (data.is_private && (!currentUserId || data.user_id !== currentUserId)) {
+      return { error: "This pet's memorial is private and can only be viewed by its creator." };
     }
 
     return data;

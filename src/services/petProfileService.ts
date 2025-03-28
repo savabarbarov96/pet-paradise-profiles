@@ -103,7 +103,7 @@ export const createPetProfile = async (
       primaryMediaUrl = publicUrl;
     }
 
-    // Create pet profile in database
+    // Create pet profile in database - note: is_private defaults to false in the database
     const { data: profileData, error: profileError } = await supabase
       .from('pet_profiles')
       .insert([{
@@ -117,7 +117,9 @@ export const createPetProfile = async (
         // Temporarily store favoriteThings as part of the traits array
         // favorite_things: profile.favoriteThings || [],
         featured_media_url: primaryMediaUrl,
-        user_id: session.user.id
+        user_id: session.user.id,
+        is_private: profile.is_private || false,
+        can_remember_photo: true  // Always allow photo tributes, regardless of privacy setting
       }])
       .select('id')
       .single();

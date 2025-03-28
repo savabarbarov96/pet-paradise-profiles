@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ImageUploader from '../ImageUploader';
 import { Button } from '@/components/ui/button';
 import { StepProps } from './types';
-import { Plus, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Image as ImageIcon, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const StepOne: React.FC<StepProps> = ({ profile, updateProfile, handleNext, totalSteps }) => {
   const [additionalPhotos, setAdditionalPhotos] = useState<string[]>(profile.photos || []);
+  const [isUploading, setIsUploading] = useState(false);
+  const multiFileInputRef = useRef<HTMLInputElement>(null);
   
   const handleAdditionalPhotoUpload = (photoDataUrl: string | null) => {
     if (!photoDataUrl) return;
@@ -16,10 +18,58 @@ const StepOne: React.FC<StepProps> = ({ profile, updateProfile, handleNext, tota
     updateProfile('photos', updatedPhotos);
   };
   
+  const handleMultiplePhotosUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Limit total number of photos to 5
+    const availableSlots = 5 - additionalPhotos.length;
+    const filesToProcess = Math.min(files.length, availableSlots);
+    
+    if (filesToProcess <= 0) {
+      alert("Достигнат е максимумът от 5 снимки. Моля премахнете някоя, за да добавите нова.");
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    // Process each file
+    const newPhotos: string[] = [];
+    let processed = 0;
+    
+    for (let i = 0; i < filesToProcess; i++) {
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        newPhotos.push(reader.result as string);
+        processed++;
+        
+        // When all files are processed
+        if (processed === filesToProcess) {
+          const updatedPhotos = [...additionalPhotos, ...newPhotos];
+          setAdditionalPhotos(updatedPhotos);
+          updateProfile('photos', updatedPhotos);
+          setIsUploading(false);
+        }
+      };
+      
+      reader.readAsDataURL(files[i]);
+    }
+    
+    // Reset input
+    e.target.value = '';
+  };
+  
   const removeAdditionalPhoto = (index: number) => {
     const updatedPhotos = additionalPhotos.filter((_, i) => i !== index);
     setAdditionalPhotos(updatedPhotos);
     updateProfile('photos', updatedPhotos);
+  };
+  
+  const openMultiFileUpload = () => {
+    if (multiFileInputRef.current) {
+      multiFileInputRef.current.click();
+    }
   };
   
   return (
@@ -44,6 +94,36 @@ const StepOne: React.FC<StepProps> = ({ profile, updateProfile, handleNext, tota
             Добавете още снимки на вашия любимец (по желание)
           </p>
           
+          {/* Multiple file input (hidden) */}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            ref={multiFileInputRef}
+            onChange={handleMultiplePhotosUpload}
+          />
+          
+          {/* Upload multiple button */}
+          <div className="flex justify-center mb-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={openMultiFileUpload}
+              disabled={additionalPhotos.length >= 5 || isUploading}
+              className="flex items-center gap-2"
+            >
+              {isUploading ? (
+                <span>Зареждане...</span>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  <span>Качете множество снимки</span>
+                </>
+              )}
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-3 gap-3 mt-4">
             {/* Display uploaded additional photos */}
             {additionalPhotos.map((photo, index) => (
@@ -53,7 +133,7 @@ const StepOne: React.FC<StepProps> = ({ profile, updateProfile, handleNext, tota
               >
                 <img 
                   src={photo} 
-                  alt={`Additional photo ${index + 1}`} 
+                  alt={`Допълнителна снимка ${index + 1}`} 
                   className="w-full h-full object-cover"
                 />
                 <button

@@ -1,7 +1,7 @@
 export interface PetProfile {
   name: string;
   image: string | null;
-  traits: string[];
+  traits: string | string[];
   bio?: string;
   behaviors?: string;
   birthDate?: string;
@@ -12,6 +12,8 @@ export interface PetProfile {
   photos?: string[];
   gender?: 'male' | 'female' | 'unknown';
   nickname?: string;
+  is_private?: boolean;
+  can_remember_photo?: boolean;
 }
 
 export interface StepProps {

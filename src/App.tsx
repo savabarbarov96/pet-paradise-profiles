@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./components/Auth";
 import PetParadise from "./pages/PetParadise";
 import PetProfiles from "./pages/PetProfiles";
+import PetProfile from "./pages/PetProfile";
 import HomePage from "./pages/HomePage";
 import ParadisePage from "./pages/Paradise";
 
@@ -24,6 +25,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Public route component for pet profiles
+const PublicPetProfile = ({ children }: { children: React.ReactNode }) => {
+  const { loading } = useAuth();
+  
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
   
   return <>{children}</>;
@@ -48,9 +60,9 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/pet/:id" element={
-              <ProtectedRoute>
-                <PetParadise />
-              </ProtectedRoute>
+              <PublicPetProfile>
+                <PetProfile />
+              </PublicPetProfile>
             } />
             <Route path="/profiles" element={
               <ProtectedRoute>

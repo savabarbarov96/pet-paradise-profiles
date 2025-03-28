@@ -14,15 +14,16 @@ interface MediaItem {
   type: 'photo' | 'video';
   size?: number;
 }
-
 interface PhotoAlbumProps {
-  media: MediaItem[];
-  className?: string;
+  media: MediaItem[]; // Assuming MediaItem is imported or defined
   petName: string;
-  onUpload?: (files: File[]) => Promise<void>;
-  onDelete?: (mediaId: string) => Promise<void>;
-  onSetFeatured?: (mediaId: string) => Promise<void>;
-  featuredMediaId?: string;
+  onUpload: (files: File[]) => Promise<void>; // Or appropriate type
+  onDelete: (mediaId: string) => Promise<void>;
+  onSetFeatured: (mediaId: string | null) => Promise<void>;
+  featuredMediaId: string | null;
+  isUploading: boolean; // <-- Add this line
+  className?: string; // <-- Add this if fixing error #3 using Option A
+  // ... any other props PhotoAlbum needs
 }
 
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB

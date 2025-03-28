@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, AlertCircle } from 'lucide-react';
+import { PlusCircle, AlertCircle, VolumeX, Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -20,7 +20,26 @@ const HomePage = () => {
   const [newProfileId, setNewProfileId] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [error, setError] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
+
+  // Initialize audio player
+  useEffect(() => {
+    // Initialize audio when component mounts
+    if (audioRef.current) {
+      audioRef.current.volume = 0.3; // Set initial volume to 30%
+      audioRef.current.loop = true; // Loop the music
+    }
+  }, []);
+
+  // Toggle mute/unmute function
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !audioRef.current.muted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   useEffect(() => {
     console.log('HomePage: Component mounted or location changed, fetching profiles...');
@@ -132,6 +151,22 @@ const HomePage = () => {
   console.log('HomePage: Rendering profiles:', profiles);
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Background Music */}
+      <audio 
+        ref={audioRef} 
+        src="/sounds/pet-paradise-background-music.mp3" 
+        autoPlay 
+      />
+      
+      {/* Music Controls */}
+      <button 
+        onClick={toggleMute} 
+        className="fixed bottom-4 right-4 z-50 p-3 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white transition-all duration-300 shadow-lg"
+        aria-label={isMuted ? "Unmute background music" : "Mute background music"}
+      >
+        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+      </button>
+      
       <SideMenu />
       <main className="flex-1 md:ml-64">
         <div className="relative min-h-screen">
@@ -140,9 +175,9 @@ const HomePage = () => {
 
           {/* Content */}
           <div className="relative z-10 p-6 flex flex-col h-full">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
               <motion.h1 
-                className="text-3xl font-handwritten text-bulgarian font-semibold text-white pl-10 md:pl-0"
+                className="text-3xl font-handwritten font-semibold text-white text-center md:text-left w-full md:w-auto"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
@@ -156,10 +191,10 @@ const HomePage = () => {
               >
                 <Button 
                   onClick={handleCreateNew}
-                  className="bg-paradise hover:bg-paradise-dark font-handwritten"
+                  className="bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-handwritten rounded-xl"
                 >
                   <PlusCircle className="h-4 w-4 mr-2" />
-                  Създаване на профил
+                  Вкарай душа в рая
                 </Button>
               </motion.div>
             </div>

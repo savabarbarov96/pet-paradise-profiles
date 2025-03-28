@@ -122,13 +122,15 @@ const PetProfiles = () => {
     <div className="flex flex-col md:flex-row min-h-screen">
       <SideMenu />
       <ParticleParallaxBackground>
-        <main className="flex-1 md:ml-64 p-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-display font-semibold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Профили на домашни любимци</h1>
+        <main className="flex-1 md:ml-64 p-4 md:p-6 lg:p-8 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-display font-semibold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                Профили на домашни любимци
+              </h1>
               <Button 
                 onClick={handleCreateNew}
-                className="bg-paradise hover:bg-paradise-dark shadow-md"
+                className="bg-paradise hover:bg-paradise-dark shadow-md w-full md:w-auto"
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Създай нов профил
@@ -145,8 +147,10 @@ const PetProfiles = () => {
                 <div className="mx-auto w-16 h-16 bg-paradise/20 rounded-full flex items-center justify-center mb-4 shadow-paradise/20 shadow-inner">
                   <PawPrint className="h-8 w-8 text-paradise" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Нямате профили на домашни любимци</h2>
-                <p className="text-white/90 mb-6 font-handwritten drop-shadow-sm">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                  Нямате профили на домашни любимци
+                </h2>
+                <p className="text-white/90 mb-6 font-handwritten text-base md:text-lg drop-shadow-sm">
                   Създайте профил на вашия любимец, за да започнете да използвате Рай за Домашни Любимци
                 </p>
                 <Button 
@@ -158,22 +162,24 @@ const PetProfiles = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 {profiles.map((profile) => (
                   <div 
                     key={profile.id} 
-                    className="bg-white/20 backdrop-blur-md rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all hover:translate-y-[-5px] border border-white/10"
+                    className="bg-white/20 backdrop-blur-md rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all hover:translate-y-[-5px] border border-white/20 flex flex-col"
                   >
-                    <div className="h-48 relative bg-gradient-to-r from-paradise/60 to-paradise-dark/60">
+                    <div className="h-40 md:h-48 lg:h-56 relative bg-gradient-to-r from-paradise/60 to-paradise-dark/60">
                       {profile.featured_media_url ? (
                         <img 
                           src={profile.featured_media_url} 
                           alt={profile.name}
-                          className="w-full h-full object-cover opacity-70"
+                          className="w-full h-full object-cover"
                         />
                       ) : null}
-                      <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
-                        <h2 className="text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{profile.name}</h2>
+                      <div className="absolute inset-0 flex flex-col justify-end p-4 text-white bg-gradient-to-t from-black/70 to-transparent">
+                        <h2 className="text-xl md:text-2xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                          {profile.name}
+                        </h2>
                         {(profile.birth_date || profile.death_date) && (
                           <div className="text-sm opacity-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                             {formatDate(profile.birth_date)} 
@@ -184,48 +190,45 @@ const PetProfiles = () => {
                       </div>
                     </div>
 
-                    <div className="p-4 space-y-4">
+                    <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
                       <div className="flex flex-wrap gap-1">
-                        {profile.traits && profile.traits.map((trait, idx) => (
+                        {profile.traits && profile.traits.slice(0, 3).map((trait, idx) => (
                           <span 
                             key={idx}
-                            className="px-2 py-0.5 bg-paradise/30 text-white text-xs rounded-full font-handwritten drop-shadow-sm"
+                            className="px-2 py-0.5 bg-paradise/30 text-white text-xs md:text-sm rounded-full font-handwritten drop-shadow-sm"
                           >
                             {trait}
                           </span>
                         ))}
+                        {profile.traits && profile.traits.length > 3 && (
+                          <span className="px-2 py-0.5 bg-paradise/20 text-white text-xs rounded-full">
+                            +{profile.traits.length - 3}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex justify-between pt-2">
+                      <div className="flex justify-between pt-2 gap-2">
                         <Button 
-                          onClick={() => profile.id && handleView(profile.id)}
-                          variant="outline" 
-                          size="sm"
-                          className="border-white/20 bg-white/10 text-white hover:bg-white/20 shadow-sm"
+                          onClick={() => handleView(profile.id!)}
+                          className="flex-1 bg-paradise/20 hover:bg-paradise/30 text-white"
                         >
-                          <Eye className="h-4 w-4 mr-1" />
+                          <Eye className="h-4 w-4 mr-2" />
                           Преглед
                         </Button>
-                        
-                        <div className="space-x-2">
-                          <Button 
-                            onClick={() => profile.id && handleEdit(profile.id)}
-                            variant="outline" 
-                            size="icon"
-                            className="h-8 w-8 border-white/20 bg-white/10 text-white hover:bg-white/20 shadow-sm"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => profile.id && confirmDelete(profile.id, profile.name)}
-                            variant="outline" 
-                            size="icon"
-                            className="h-8 w-8 border-destructive/30 text-destructive hover:bg-destructive/10 shadow-sm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={() => handleEdit(profile.id!)}
+                          className="flex-1 bg-paradise/20 hover:bg-paradise/30 text-white"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Редакция
+                        </Button>
+                        <Button
+                          onClick={() => confirmDelete(profile.id!, profile.name)}
+                          variant="destructive"
+                          className="bg-red-500/20 hover:bg-red-500/30"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -241,25 +244,19 @@ const PetProfiles = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Изтриване на профил</AlertDialogTitle>
             <AlertDialogDescription>
-              Сигурни ли сте, че искате да изтриете профила на <strong>{selectedProfileName}</strong>?
-              <br /><br />
-              Това действие не може да бъде отменено. Всички снимки и данни, свързани с този профил,
-              ще бъдат изтрити завинаги.
+              Сигурни ли сте, че искате да изтриете профила на {selectedProfileName}? Това действие не може да бъде отменено.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Отказ</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-              className="bg-destructive hover:bg-destructive/90"
+              onClick={handleDelete}
               disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
             >
               {isDeleting ? (
                 <>
-                  <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-r-transparent mr-2"></div>
                   Изтриване...
                 </>
               ) : (

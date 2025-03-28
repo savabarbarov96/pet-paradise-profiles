@@ -16,13 +16,14 @@ const PetProfileCreation: React.FC = () => {
   const [profile, setProfile] = useState<PetProfile>({
     name: '',
     image: null,
-    traits: [],
+    traits: '',
     bio: '',
     behaviors: '',
     species: 'dog',
     photos: [],
     gender: 'unknown',
-    favoriteThings: []
+    favoriteThings: [],
+    is_private: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -68,7 +69,9 @@ const PetProfileCreation: React.FC = () => {
       // Convert profile data to match the service interface requirements
       const profileData = {
         name: profile.name.trim(),
-        traits: profile.traits || [],
+        traits: typeof profile.traits === 'string' 
+          ? [profile.traits] // Convert string to single-item array for database compatibility
+          : profile.traits || [],
         bio: profile.bio || '',
         behaviors: profile.behaviors || '',
         birthDate: profile.birthDate,
@@ -76,6 +79,8 @@ const PetProfileCreation: React.FC = () => {
         species: profile.species || 'other',
         breed: profile.breed || '',
         favoriteThings: profile.favoriteThings || [],
+        is_private: profile.is_private || false,
+        can_remember_photo: true, // Always allow photos and tributes regardless of privacy setting
         color: '' // Add the missing color field which is required in the database
       };
       
